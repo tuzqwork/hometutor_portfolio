@@ -1,63 +1,49 @@
-// Add this code at the end of main.js
+/*=============== SCROLL SECTIONS ACTIVE LINK ===============*/
+const sections = document.querySelectorAll('section[id]')
 
-/*=============== CHATBOT ===============*/
-const chatbotButton = document.querySelector('.chatbot__button'),
-      chatbotContainer = document.querySelector('.chatbot__container'),
-      chatbotClose = document.querySelector('.chatbot__close'),
-      chatbotInput = document.querySelector('.chatbot__input'),
-      chatbotMessages = document.querySelector('.chatbot__messages')
+function scrollActive(){
+    const scrollY = window.pageYOffset
 
-// Toggle chatbot
-chatbotButton.addEventListener('click', () => {
-    chatbotContainer.classList.add('show-chat')
-})
+    sections.forEach(current =>{
+        const sectionHeight = current.offsetHeight,
+              sectionTop = current.offsetTop - 58,
+              sectionId = current.getAttribute('id')
 
-chatbotClose.addEventListener('click', () => {
-    chatbotContainer.classList.remove('show-chat')
-})
+        if(scrollY > sectionTop && scrollY <= sectionTop + sectionHeight){
+            document.querySelector('.nav__menu a[href*=' + sectionId + ']').classList.add('active-link')
+        }else{
+            document.querySelector('.nav__menu a[href*=' + sectionId + ']').classList.remove('active-link')
+        }
+    })
+}
+window.addEventListener('scroll', scrollActive)
 
-// Simple chatbot responses
-const responses = {
-    'hello': 'Xin chào! Tôi có thể giúp gì cho bạn?',
-    'hi': 'Xin chào! Tôi có thể giúp gì cho bạn?',
-    'fee': 'Học phí của tôi là 200.000đ/giờ cho môn Toán và Hóa.',
-    'time': 'Tôi có thể dạy vào các buổi tối trong tuần và cả ngày cuối tuần.',
-    'subject': 'Tôi dạy môn Toán và Hóa cho học sinh cấp 2 và cấp 3.',
-    'contact': 'Bạn có thể liên hệ với tôi qua email tuzqwork@gmail.com hoặc Facebook.'
+/*=============== LIGHT DARK THEME ===============*/ 
+const themeButton = document.getElementById('theme-button')
+const lightTheme = 'light-theme'
+const iconTheme = 'bx-sun'
+
+// Previously selected topic (if user selected)
+const selectedTheme = localStorage.getItem('selected-theme')
+const selectedIcon = localStorage.getItem('selected-icon')
+
+// We obtain the current theme that the interface has by validating the light-theme class
+const getCurrentTheme = () => document.body.classList.contains(lightTheme) ? 'dark' : 'light'
+const getCurrentIcon = () => themeButton.classList.contains(iconTheme) ? 'bx bx-moon' : 'bx bx-sun'
+
+// We validate if the user previously chose a topic
+if (selectedTheme) {
+  // If the validation is fulfilled, we ask what the issue was to know if we activated or deactivated the light
+  document.body.classList[selectedTheme === 'dark' ? 'add' : 'remove'](lightTheme)
+  themeButton.classList[selectedIcon === 'bx bx-moon' ? 'add' : 'remove'](iconTheme)
 }
 
-chatbotInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && chatbotInput.value.trim() !== '') {
-        // Add user message
-        const userMessage = document.createElement('div')
-        userMessage.className = 'chatbot__message user'
-        userMessage.textContent = chatbotInput.value
-        chatbotMessages.appendChild(userMessage)
-
-        // Add bot response
-        setTimeout(() => {
-            const botMessage = document.createElement('div')
-            botMessage.className = 'chatbot__message'
-            
-            // Check for keywords in the user's message
-            const userInput = chatbotInput.value.toLowerCase()
-            let response = 'Xin lỗi, tôi không hiểu câu hỏi của bạn. Bạn có thể hỏi về học phí, thời gian học hoặc môn học.'
-            
-            for (const [key, value] of Object.entries(responses)) {
-                if (userInput.includes(key)) {
-                    response = value
-                    break
-                }
-            }
-            
-            botMessage.textContent = response
-            chatbotMessages.appendChild(botMessage)
-            
-            // Scroll to bottom
-            chatbotMessages.scrollTop = chatbotMessages.scrollHeight
-        }, 500)
-
-        // Clear input
-        chatbotInput.value = ''
-    }
+// Activate / deactivate the theme manually with the button
+themeButton.addEventListener('click', () => {
+    // Add or remove the light / icon theme
+    document.body.classList.toggle(lightTheme)
+    themeButton.classList.toggle(iconTheme)
+    // We save the theme and the current icon that the user chose
+    localStorage.setItem('selected-theme', getCurrentTheme())
+    localStorage.setItem('selected-icon', getCurrentIcon())
 })
